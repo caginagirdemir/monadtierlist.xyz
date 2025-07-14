@@ -146,16 +146,49 @@
       return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     }
 
+    // Show a tooltip/message when an image is selected on mobile
+    function showMobileTooltip(msg) {
+      let tooltip = document.getElementById('mobile-tier-tooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'mobile-tier-tooltip';
+        tooltip.style.position = 'fixed';
+        tooltip.style.top = '0';
+        tooltip.style.left = '0';
+        tooltip.style.width = '100vw';
+        tooltip.style.zIndex = '9999';
+        tooltip.style.background = 'rgba(0,0,0,0.95)';
+        tooltip.style.color = '#ffcc00';
+        tooltip.style.textAlign = 'center';
+        tooltip.style.fontSize = '1.2rem';
+        tooltip.style.padding = '0.75rem 0.5rem';
+        tooltip.style.transition = 'opacity 0.2s';
+        document.body.appendChild(tooltip);
+      }
+      tooltip.textContent = msg;
+      tooltip.style.opacity = '1';
+    }
+
+    function hideMobileTooltip() {
+      const tooltip = document.getElementById('mobile-tier-tooltip');
+      if (tooltip) {
+        tooltip.style.opacity = '0';
+        setTimeout(() => { if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip); }, 300);
+      }
+    }
+
     function onTouchStartImg(e) {
       if (!isTouchDevice()) return;
       e.preventDefault();
       const imgId = e.currentTarget.dataset.imgId;
       if (touchSelectedImgId === imgId) {
         touchSelectedImgId = null;
+        hideMobileTooltip();
         renderTierList();
         return;
       }
       touchSelectedImgId = imgId;
+      showMobileTooltip('Tap a tier to assign this image');
       renderTierList();
     }
 
@@ -175,6 +208,7 @@
         tierList[tier].push(img);
       }
       touchSelectedImgId = null;
+      hideMobileTooltip();
       renderTierList();
     }
     resetTierList();
