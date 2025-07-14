@@ -60,6 +60,8 @@
         dropzone.addEventListener('dragover', onDragOver);
         dropzone.addEventListener('drop', onDrop);
         dropzone.addEventListener('dragleave', onDragLeave);
+        // Touch support
+        dropzone.addEventListener('touchend', onTouchEndDropzone);
         tierList[tier].forEach(img => {
           dropzone.appendChild(createImageElement(img));
         });
@@ -79,6 +81,8 @@
       dropzone.addEventListener('dragover', onDragOver);
       dropzone.addEventListener('drop', onDrop);
       dropzone.addEventListener('dragleave', onDragLeave);
+      // Touch support
+      dropzone.addEventListener('touchend', onTouchEndDropzone);
       unassigned.forEach(img => {
         dropzone.appendChild(createImageElement(img));
       });
@@ -94,9 +98,17 @@
       el.dataset.imgId = img.id;
       el.addEventListener('dragstart', onDragStart);
       el.addEventListener('dragend', onDragEnd);
+      // Touch support
+      el.addEventListener('touchstart', onTouchStartImg);
+      if (touchSelectedImgId === img.id) {
+        el.style.outline = '3px solid #ffcc00';
+      } else {
+        el.style.outline = '';
+      }
       return el;
     }
     let draggedImgId = null;
+    let touchSelectedImgId = null;
     function onDragStart(e) {
       draggedImgId = e.target.dataset.imgId;
       e.target.classList.add('dragging');
@@ -127,6 +139,42 @@
       } else {
         tierList[tier].push(img);
       }
+      renderTierList();
+    }
+    // --- Touch support for mobile ---
+    function isTouchDevice() {
+      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
+
+    function onTouchStartImg(e) {
+      if (!isTouchDevice()) return;
+      e.preventDefault();
+      const imgId = e.currentTarget.dataset.imgId;
+      if (touchSelectedImgId === imgId) {
+        touchSelectedImgId = null;
+        renderTierList();
+        return;
+      }
+      touchSelectedImgId = imgId;
+      renderTierList();
+    }
+
+    function onTouchEndDropzone(e) {
+      if (!isTouchDevice()) return;
+      if (!touchSelectedImgId) return;
+      const tier = e.currentTarget.dataset.tier;
+      // Remove from all tiers and unassigned
+      TIERS.forEach(t => {
+        tierList[t] = tierList[t].filter(img => img.id !== touchSelectedImgId);
+      });
+      unassigned = unassigned.filter(img => img.id !== touchSelectedImgId);
+      let img = mockImages.find(i => i.id === touchSelectedImgId);
+      if (tier === 'unassigned') {
+        unassigned.push(img);
+      } else {
+        tierList[tier].push(img);
+      }
+      touchSelectedImgId = null;
       renderTierList();
     }
     resetTierList();
