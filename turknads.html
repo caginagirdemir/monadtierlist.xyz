@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tier List 1 (Static)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+  <div class="container py-4">
+    <div id="screenshot-area" style="background:#000; padding: 2rem; border-radius: 1rem;">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="row">
+          <div class="col-12"><h1>turknads Tier List</h1></div>
+          <div class="col-12"><h3>monadtierlist.xyz</h3> </div>
+        </div>
+        
+        
+        <a href="index.html" class="btn btn-outline-light">Back to Main</a>
+        <button id="screenshot-btn" class="btn btn-warning ms-2">Download Screenshot</button>
+      </div>
+      <div id="tierlist-container"></div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const mockImages = [
+      { id: 'port', src: 'turknads/port.png', label: 'port' },
+      { id: 'money', src: 'turknads/money.jpg', label: 'money' },
+      { id: 'ozzy', src: 'turknads/ozzy.jpg', label: 'ozzy' },
+      { id: 'rizerya', src: 'turknads/rizerya.jpg', label: 'rizerya' },
+      { id: 'katsuyama', src: 'turknads/katsuyama.jpg', label: 'katsuyama' },
+      { id: 'berzan', src: 'turknads/berzan.jpg', label: 'berzan' },
+      { id: 'tbeagle', src: 'turknads/tbeagle.jpg', label: 'tbeagle' },
+      { id: 'kutsal', src: 'turknads/kutsal.jpg', label: 'kutsal' },
+      { id: 'wizard', src: 'turknads/wizard.jpg', label: 'wizard' },
+      { id: 'astro', src: 'turknads/astro.jpg', label: 'astro' },
+      { id: 'imma', src: 'turknads/imma.jpg', label: 'imma' },
+      { id: 'follow', src: 'turknads/follow.jpg', label: 'follow' },
+      { id: 'baboli', src: 'turknads/baboli.jpg', label: 'baboli' },
+      { id: 'erkin', src: 'turknads/erkin.jpg', label: 'erkin' },
+      { id: 'leo', src: 'turknads/leo.jpg', label: 'leo' },
+      { id: 'herkel', src: 'turknads/herkel.jpg', label: 'herkel' },
+      { id: 'rosin', src: 'turknads/rosin.jpg', label: 'rosin' },
+      { id: 'edison', src: 'turknads/edison.jpg', label: 'edison' },
+      { id: 'taha', src: 'turknads/taha.jpg', label: 'taha' },
+      { id: 'boga', src: 'turknads/boga.jpg', label: 'boga' },
+      { id: 'diamond', src: 'turknads/diamond.jpg', label: 'diamond' },
+      { id: 'secret', src: 'turknads/secret.jpg', label: 'secret' },
+      { id: 'cassini', src: 'turknads/cassini.jpg', label: 'cassini' },
+      { id: 'arman', src: 'turknads/arman.jpg', label: 'arman' },
+      { id: 'sergen', src: 'turknads/sergen.jpg', label: 'sergen' },
+      { id: 'gizdusum', src: 'turknads/gizdusum.jpg', label: 'gizdusum' },
+      { id: 'sado', src: 'turknads/sado.jpg', label: 'sado' },
+      { id: 'adanaley', src: 'turknads/adanaley.jpg', label: 'adanaley' },
+      { id: 'medusa', src: 'turknads/medusa.jpg', label: 'medusa' },
+      { id: 'blocash', src: 'turknads/blocash.jpg', label: 'blocash' },
+      { id: 'sena', src: 'turknads/sena.jpg', label: 'sena' },
+      { id: 'cyberpunj', src: 'turknads/cyberpunj.jpg', label: 'cyberpunj' },
+      { id: 'maksim', src: 'turknads/maksim.jpg', label: 'maksim' },
+      { id: 'elmorate', src: 'turknads/elmorate.jpg', label: 'elmorate' },
+      { id: 'james', src: 'turknads/james.jpg', label: 'james' },
+      { id: 'kg', src: 'turknads/kg.jpg', label: 'kg' },
+      { id: 'burak', src: 'turknads/burak.jpg', label: 'burak' },
+      { id: 'juli', src: 'turknads/juli.jpg', label: 'juli' },
+      { id: 'erdinc', src: 'turknads/erdinc.png', label: 'erdinc' },
+      { id: 'profile_200_200', src: 'turknads/profile_200_200.png', label: 'profile_200_200' }
+    ];
+    const TIERS = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
+    let tierList = {};
+    let unassigned = [...mockImages];
+    function resetTierList() {
+      tierList = {};
+      TIERS.forEach(t => tierList[t] = []);
+      unassigned = [...mockImages];
+    }
+    function renderTierList() {
+      const container = document.getElementById('tierlist-container');
+      container.innerHTML = '';
+      TIERS.forEach(tier => {
+        const row = document.createElement('div');
+        row.className = `tier-row tier-${tier}`;
+        const label = document.createElement('div');
+        label.className = 'tier-label';
+        label.textContent = tier;
+        row.appendChild(label);
+        const dropzone = document.createElement('div');
+        dropzone.className = 'tier-dropzone';
+        dropzone.dataset.tier = tier;
+        dropzone.addEventListener('dragover', onDragOver);
+        dropzone.addEventListener('drop', onDrop);
+        dropzone.addEventListener('dragleave', onDragLeave);
+        // Touch support
+        dropzone.addEventListener('touchend', onTouchEndDropzone);
+        tierList[tier].forEach(img => {
+          dropzone.appendChild(createImageElement(img));
+        });
+        row.appendChild(dropzone);
+        container.appendChild(row);
+      });
+      // Unassigned images
+      const unassignedRow = document.createElement('div');
+      unassignedRow.className = 'tier-row';
+      const label = document.createElement('div');
+      label.className = 'tier-label';
+      label.textContent = 'List';
+      unassignedRow.appendChild(label);
+      const dropzone = document.createElement('div');
+      dropzone.className = 'tier-dropzone';
+      dropzone.dataset.tier = 'unassigned';
+      dropzone.addEventListener('dragover', onDragOver);
+      dropzone.addEventListener('drop', onDrop);
+      dropzone.addEventListener('dragleave', onDragLeave);
+      // Touch support
+      dropzone.addEventListener('touchend', onTouchEndDropzone);
+      unassigned.forEach(img => {
+        dropzone.appendChild(createImageElement(img));
+      });
+      unassignedRow.appendChild(dropzone);
+      container.appendChild(unassignedRow);
+    }
+    function createImageElement(img) {
+      const el = document.createElement('img');
+      el.src = img.src;
+      el.alt = img.label;
+      el.className = 'tier-image';
+      el.draggable = true;
+      el.dataset.imgId = img.id;
+      el.addEventListener('dragstart', onDragStart);
+      el.addEventListener('dragend', onDragEnd);
+      // Touch support
+      el.addEventListener('touchstart', function(e) {
+        if (!isTouchDevice()) return;
+        if (touchSelectedImgId !== img.id) {
+          e.preventDefault();
+          touchSelectedImgId = img.id;
+          showMobileTooltip('Tap a tier to assign this image');
+          renderTierList();
+        }
+      });
+      el.addEventListener('touchend', function(e) {
+        if (!isTouchDevice()) return;
+        if (touchSelectedImgId === img.id) {
+          e.preventDefault();
+          touchSelectedImgId = null;
+          hideMobileTooltip();
+          renderTierList();
+        }
+      });
+      if (touchSelectedImgId === img.id) {
+        el.style.outline = '3px solid #ffcc00';
+      } else {
+        el.style.outline = '';
+      }
+      return el;
+    }
+    let draggedImgId = null;
+    let touchSelectedImgId = null;
+    function onDragStart(e) {
+      draggedImgId = e.target.dataset.imgId;
+      e.target.classList.add('dragging');
+    }
+    function onDragEnd(e) {
+      draggedImgId = null;
+      e.target.classList.remove('dragging');
+    }
+    function onDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('dragover');
+    }
+    function onDragLeave(e) {
+      e.currentTarget.classList.remove('dragover');
+    }
+    function onDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('dragover');
+      if (!draggedImgId) return;
+      TIERS.forEach(tier => {
+        tierList[tier] = tierList[tier].filter(img => img.id !== draggedImgId);
+      });
+      unassigned = unassigned.filter(img => img.id !== draggedImgId);
+      const img = mockImages.find(i => i.id === draggedImgId);
+      const tier = e.currentTarget.dataset.tier;
+      if (tier === 'unassigned') {
+        unassigned.push(img);
+      } else {
+        tierList[tier].push(img);
+      }
+      renderTierList();
+    }
+    // --- Touch support for mobile ---
+    function isTouchDevice() {
+      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
+
+    // Show a tooltip/message when an image is selected on mobile
+    function showMobileTooltip(msg) {
+      let tooltip = document.getElementById('mobile-tier-tooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'mobile-tier-tooltip';
+        tooltip.style.position = 'fixed';
+        tooltip.style.top = '0';
+        tooltip.style.left = '0';
+        tooltip.style.width = '100vw';
+        tooltip.style.zIndex = '9999';
+        tooltip.style.background = 'rgba(0,0,0,0.95)';
+        tooltip.style.color = '#ffcc00';
+        tooltip.style.textAlign = 'center';
+        tooltip.style.fontSize = '1.2rem';
+        tooltip.style.padding = '0.75rem 0.5rem';
+        tooltip.style.transition = 'opacity 0.2s';
+        document.body.appendChild(tooltip);
+      }
+      tooltip.textContent = msg;
+      tooltip.style.opacity = '1';
+    }
+
+    function hideMobileTooltip() {
+      const tooltip = document.getElementById('mobile-tier-tooltip');
+      if (tooltip) {
+        tooltip.style.opacity = '0';
+        setTimeout(() => { if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip); }, 300);
+      }
+    }
+
+    function onTouchEndDropzone(e) {
+      if (!isTouchDevice()) return;
+      if (!touchSelectedImgId) return;
+      const tier = e.currentTarget.dataset.tier;
+      // Remove from all tiers and unassigned
+      TIERS.forEach(t => {
+        tierList[t] = tierList[t].filter(img => img.id !== touchSelectedImgId);
+      });
+      unassigned = unassigned.filter(img => img.id !== touchSelectedImgId);
+      let img = mockImages.find(i => i.id === touchSelectedImgId);
+      if (tier === 'unassigned') {
+        unassigned.push(img);
+      } else {
+        tierList[tier].push(img);
+      }
+      touchSelectedImgId = null;
+      hideMobileTooltip();
+      renderTierList();
+    }
+    resetTierList();
+    renderTierList();
+    // Screenshot functionality
+    document.getElementById('screenshot-btn').onclick = function() {
+      html2canvas(document.getElementById('screenshot-area'), {backgroundColor: '#000'}).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'tierlist.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    };
+  </script>
+</body>
+</html> 
