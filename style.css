@@ -1,0 +1,82 @@
+body {
+  background-color: #181a1b;
+  color: #f8f9fa;
+}
+.tier-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  min-height: 100px;
+}
+.tier-label {
+  width: 60px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-right: 1rem;
+}
+.tier-S { background: #ffcc00; color: #222; }
+.tier-A { background: #ff9900; color: #222; }
+.tier-B { background: #ff6666; color: #222; }
+.tier-C { background: #ff66cc; color: #222; }
+.tier-D { background: #6699ff; color: #222; }
+.tier-E { background: #66ffcc; color: #222; }
+.tier-F { background: #cccccc; color: #222; }
+.tier-dropzone {
+  flex: 1;
+  min-height: 80px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(40,40,40,0.7);
+  border: 2px dashed #444;
+  border-radius: 0.5rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+.tier-dropzone.dragover {
+  background: #222;
+  border-color: #fff;
+}
+.tier-image {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 2px solid #444;
+  background: #222;
+  cursor: grab;
+  transition: border-color 0.2s;
+}
+.tier-image.dragging {
+  opacity: 0.5;
+  border-color: #fff;
+}
+#tierlist-title[contenteditable="true"] {
+  outline: 2px solid #ffcc00;
+  background: #222;
+  border-radius: 0.25rem;
+  padding: 0 0.5rem;
+}
+#tierlist-title {
+  transition: background 0.2s, outline 0.2s;
+}
+#uploaded-images {
+  min-height: 72px;
+}
+.uploaded-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 2px solid #444;
+  background: #222;
+  cursor: grab;
+  transition: border-color 0.2s;
+}
+.uploaded-thumb.dragging {
+  opacity: 0.5;
+  border-color: #fff;
+} 

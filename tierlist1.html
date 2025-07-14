@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tier List 1 (Static)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+  <div class="container py-4">
+    <div id="screenshot-area" style="background:#000; padding: 2rem; border-radius: 1rem;">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="row">
+          <div class="col-12"><h1>Monad Community Team Tier List</h1></div>
+          <div class="col-12"><h3>monadtierlist.xyz</h3> </div>
+        </div>
+        
+        
+        <a href="index.html" class="btn btn-outline-light">Back to Main</a>
+        <button id="screenshot-btn" class="btn btn-warning ms-2">Download Screenshot</button>
+      </div>
+      <div id="tierlist-container"></div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const mockImages = [
+      { id: 'billmonday', src: 'communityTeam/billmonday.jpg', label: 'billmonday' },
+      { id: 'benads', src: 'communityTeam/benads.png', label: 'benads' },
+      { id: 'christia', src: 'communityTeam/christia.jpg', label: 'christia' },
+      { id: 'mikeweb', src: 'communityTeam/mikeweb.jpg', label: 'mikeweb' },
+      { id: 'paulc', src: 'communityTeam/paulc.jpg', label: 'paulc' },
+      { id: 'thisisfin', src: 'communityTeam/thisisfin.jpg', label: 'thisisfin' },
+      { id: 'unahh', src: 'communityTeam/unahh.jpg', label: 'unahh' },
+      { id: 'sailornini', src: 'communityTeam/sailornini.jpg', label: 'sailornini' },
+      { id: 'port', src: 'communityTeam/port.png', label: 'port' }
+    ];
+    const TIERS = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
+    let tierList = {};
+    let unassigned = [...mockImages];
+    function resetTierList() {
+      tierList = {};
+      TIERS.forEach(t => tierList[t] = []);
+      unassigned = [...mockImages];
+    }
+    function renderTierList() {
+      const container = document.getElementById('tierlist-container');
+      container.innerHTML = '';
+      TIERS.forEach(tier => {
+        const row = document.createElement('div');
+        row.className = `tier-row tier-${tier}`;
+        const label = document.createElement('div');
+        label.className = 'tier-label';
+        label.textContent = tier;
+        row.appendChild(label);
+        const dropzone = document.createElement('div');
+        dropzone.className = 'tier-dropzone';
+        dropzone.dataset.tier = tier;
+        dropzone.addEventListener('dragover', onDragOver);
+        dropzone.addEventListener('drop', onDrop);
+        dropzone.addEventListener('dragleave', onDragLeave);
+        tierList[tier].forEach(img => {
+          dropzone.appendChild(createImageElement(img));
+        });
+        row.appendChild(dropzone);
+        container.appendChild(row);
+      });
+      // Unassigned images
+      const unassignedRow = document.createElement('div');
+      unassignedRow.className = 'tier-row';
+      const label = document.createElement('div');
+      label.className = 'tier-label';
+      label.textContent = 'List';
+      unassignedRow.appendChild(label);
+      const dropzone = document.createElement('div');
+      dropzone.className = 'tier-dropzone';
+      dropzone.dataset.tier = 'unassigned';
+      dropzone.addEventListener('dragover', onDragOver);
+      dropzone.addEventListener('drop', onDrop);
+      dropzone.addEventListener('dragleave', onDragLeave);
+      unassigned.forEach(img => {
+        dropzone.appendChild(createImageElement(img));
+      });
+      unassignedRow.appendChild(dropzone);
+      container.appendChild(unassignedRow);
+    }
+    function createImageElement(img) {
+      const el = document.createElement('img');
+      el.src = img.src;
+      el.alt = img.label;
+      el.className = 'tier-image';
+      el.draggable = true;
+      el.dataset.imgId = img.id;
+      el.addEventListener('dragstart', onDragStart);
+      el.addEventListener('dragend', onDragEnd);
+      return el;
+    }
+    let draggedImgId = null;
+    function onDragStart(e) {
+      draggedImgId = e.target.dataset.imgId;
+      e.target.classList.add('dragging');
+    }
+    function onDragEnd(e) {
+      draggedImgId = null;
+      e.target.classList.remove('dragging');
+    }
+    function onDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('dragover');
+    }
+    function onDragLeave(e) {
+      e.currentTarget.classList.remove('dragover');
+    }
+    function onDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('dragover');
+      if (!draggedImgId) return;
+      TIERS.forEach(tier => {
+        tierList[tier] = tierList[tier].filter(img => img.id !== draggedImgId);
+      });
+      unassigned = unassigned.filter(img => img.id !== draggedImgId);
+      const img = mockImages.find(i => i.id === draggedImgId);
+      const tier = e.currentTarget.dataset.tier;
+      if (tier === 'unassigned') {
+        unassigned.push(img);
+      } else {
+        tierList[tier].push(img);
+      }
+      renderTierList();
+    }
+    resetTierList();
+    renderTierList();
+    // Screenshot functionality
+    document.getElementById('screenshot-btn').onclick = function() {
+      html2canvas(document.getElementById('screenshot-area'), {backgroundColor: '#000'}).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'tierlist.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    };
+  </script>
+</body>
+</html> 
