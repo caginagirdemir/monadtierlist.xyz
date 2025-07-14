@@ -78,7 +78,26 @@ function createImageElement(img) {
   el.addEventListener('dragstart', onDragStart);
   el.addEventListener('dragend', onDragEnd);
   // Touch support
-  el.addEventListener('touchstart', onTouchStartImg);
+  el.addEventListener('touchstart', function(e) {
+    if (!isTouchDevice()) return;
+    if (touchSelectedImgId !== img.id) {
+      e.preventDefault();
+      touchSelectedImgId = img.id;
+      showMobileTooltip('Tap a tier to assign this image');
+      renderTierList();
+      renderUploadedImages && renderUploadedImages();
+    }
+  });
+  el.addEventListener('touchend', function(e) {
+    if (!isTouchDevice()) return;
+    if (touchSelectedImgId === img.id) {
+      e.preventDefault();
+      touchSelectedImgId = null;
+      hideMobileTooltip();
+      renderTierList();
+      renderUploadedImages && renderUploadedImages();
+    }
+  });
   if (touchSelectedImgId === img.id) {
     el.style.outline = '3px solid #ffcc00';
   } else {
@@ -141,23 +160,6 @@ function hideMobileTooltip() {
     tooltip.style.opacity = '0';
     setTimeout(() => { if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip); }, 300);
   }
-}
-
-function onTouchStartImg(e) {
-  if (!isTouchDevice()) return;
-  e.preventDefault();
-  const imgId = e.currentTarget.dataset.imgId;
-  if (touchSelectedImgId === imgId) {
-    touchSelectedImgId = null;
-    hideMobileTooltip();
-    renderTierList();
-    renderUploadedImages && renderUploadedImages();
-    return;
-  }
-  touchSelectedImgId = imgId;
-  showMobileTooltip('Tap a tier to assign this image');
-  renderTierList();
-  renderUploadedImages && renderUploadedImages();
 }
 
 function onTouchEndDropzone(e) {
