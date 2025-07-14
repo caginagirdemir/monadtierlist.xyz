@@ -37,6 +37,8 @@ function renderTierList() {
     dropzone.addEventListener('dragover', onDragOver);
     dropzone.addEventListener('drop', onDrop);
     dropzone.addEventListener('dragleave', onDragLeave);
+    // Touch support
+    dropzone.addEventListener('touchend', onTouchEndDropzone);
     tierList[tier].forEach(img => {
       dropzone.appendChild(createImageElement(img));
     });
@@ -57,6 +59,8 @@ function renderTierList() {
   dropzone.addEventListener('dragover', onDragOver);
   dropzone.addEventListener('drop', onDrop);
   dropzone.addEventListener('dragleave', onDragLeave);
+  // Touch support
+  dropzone.addEventListener('touchend', onTouchEndDropzone);
   unassigned.forEach(img => {
     dropzone.appendChild(createImageElement(img));
   });
@@ -73,11 +77,19 @@ function createImageElement(img) {
   el.dataset.imgId = img.id;
   el.addEventListener('dragstart', onDragStart);
   el.addEventListener('dragend', onDragEnd);
+  // Touch support
+  el.addEventListener('touchstart', onTouchStartImg);
+  if (touchSelectedImgId === img.id) {
+    el.style.outline = '3px solid #ffcc00';
+  } else {
+    el.style.outline = '';
+  }
   return el;
 }
 
 // --- Drag and Drop ---
 let draggedImgId = null;
+let touchSelectedImgId = null;
 
 function onDragStart(e) {
   draggedImgId = e.target.dataset.imgId;
@@ -93,6 +105,50 @@ function onDragOver(e) {
 }
 function onDragLeave(e) {
   e.currentTarget.classList.remove('dragover');
+}
+
+// --- Touch support for mobile ---
+function isTouchDevice() {
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
+function onTouchStartImg(e) {
+  if (!isTouchDevice()) return;
+  e.preventDefault();
+  const imgId = e.currentTarget.dataset.imgId;
+  if (touchSelectedImgId === imgId) {
+    touchSelectedImgId = null;
+    renderTierList();
+    renderUploadedImages && renderUploadedImages();
+    return;
+  }
+  touchSelectedImgId = imgId;
+  renderTierList();
+  renderUploadedImages && renderUploadedImages();
+}
+
+function onTouchEndDropzone(e) {
+  if (!isTouchDevice()) return;
+  if (!touchSelectedImgId) return;
+  const tier = e.currentTarget.dataset.tier;
+  // Remove from all tiers and unassigned
+  TIERS.forEach(t => {
+    tierList[t] = tierList[t].filter(img => img.id !== touchSelectedImgId);
+  });
+  unassigned = unassigned.filter(img => img.id !== touchSelectedImgId);
+  let img = mockImages.find(i => i.id === touchSelectedImgId);
+  if (!img) img = uploadedImages.find(i => i.id === touchSelectedImgId);
+  if (tier === 'unassigned') {
+    if (mockImages.find(i => i.id === touchSelectedImgId)) {
+      unassigned.push(img);
+    }
+    // Uploaded images: just remove from tiers, will show in uploaded list
+  } else {
+    tierList[tier].push(img);
+  }
+  touchSelectedImgId = null;
+  renderTierList();
+  renderUploadedImages && renderUploadedImages();
 }
 
 // --- Editable Title ---
